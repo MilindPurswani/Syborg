@@ -6,7 +6,7 @@ Image Credits: [Carbon](https://carbon.now.sh)
 
 Syborg has a Dead-end Avoidance system inspired from [@Tomnomnom](https://github.com/tomnomnom/hacks)'s [ettu](https://github.com/tomnomnom/hacks). 
 
-When you run subdomain enumeration with some of the tools, most of them either passively query public records like `virustotal`, `crtsh` or `censys`. This enumeration technique is really fast and helps to find out a lot of domains in much less time.
+When you run subdomain enumeration with some of the tools, most of them passively query public records like `virustotal`, `crtsh` or `censys`. This enumeration technique is really fast and helps to find out a lot of domains in much less time.
 
 However, there are some domains that may not be mentioned in these public records. Inorder to find those domains, Syborg interacts with the nameservers and recursively brute-forces subdomain from the DNS until it's queue is empty. 
 
@@ -63,7 +63,7 @@ python3 syborg.py yahoo.com
 
 ## Using Smartly:
 
-1. By default this will use the built-in wordlist (Courtesy: [altdns](https://github.com/infosec-au/altdns)) which may or may not generate appropriate results. If you are looking for a good wordlist, I suggest you use [@tomnomnom](https//github.com/tomnomnom) `assetfinder` and `tok` tool to generate a domain specific word-list. 
+1. By default this will use the built-in wordlist (Courtesy: [altdns](https://github.com/infosec-au/altdns)) which may or may not generate appropriate results. If you are looking for a good wordlist, I suggest you use [@tomnomnom](https://github.com/tomnomnom) `assetfinder` and `tok` tool to generate a domain specific word-list. 
 
 ```bash
 assetfinder --subs-only media.yahoo.com | tok | sort -u -delim-exceptions=- | tee -a media.yahoo.com-wordlist.txt
