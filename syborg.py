@@ -5,79 +5,118 @@ import sys
 import socket
 import dns.resolver
 import argparse
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("domain",help="domain name of the target")
-parser.add_argument("dns",help="dns of the target")
-parser.add_argument("output_file",help="Output file path")
+parser.add_argument("-d","--dns",help="DNS Server to be used (default: 8.8.8.8)")
+parser.add_argument("-w","--wordlist",help="Specify a custom wordlist (default: wordlist.txt)")
+parser.add_argument("-o","--output",help="Specify the output file (default: results-domain.txt)")
+parser.add_argument("-c","--concurrency",help="Specify the level of concurrency (default: 10)")
 parser.add_argument("-v", "--verbose", help="increase output verbosity",action="store_true")
 args = parser.parse_args()
 if args.verbose:
     print("[*] Verbose Mode On!")
 site = args.domain
-dns_server = args.dns
-output_file = args.output_file
+
+if args.dns:
+    dns_server = args.dns
+else:
+    dns_server = "8.8.8.8"
+
+if args.verbose:
+    print("[*] DNS Server Set to %s" % dns_server)
+
+if args.output:
+    output_file = args.output
+else:
+    output_file = "results-"+site+".txt"
+
+if args.verbose:
+    print("[*] Output to %s" % output_file)
+    print("[*] BEWARE: This may overwrite the file if it's already existing.")
+
+
+if args.wordlist:
+    wordlist = args.wordlist
+else:
+    wordlist = "wordlist.txt"
+
+if args.verbose:
+    print("[*] Using wordlist %s" % wordlist)
+
+if args.concurrency:
+    concurrent = args.concurrency
+else:
+    concurrent = 10
+
+#Delay the script from running to allow users to read options
+if args.verbose:
+    time.sleep(5)
 
 resolver = dns.resolver.Resolver()
 resolver.nameservers = [socket.gethostbyname(dns_server)]
 resolver.timeout = 1
 resolver.lifetime = 1
 
-concurrent = 50
-
 def doWork():
     while True:
         word = q.get()
-        #print(word)
-        domain = getStatus(word)
+        getStatus(word)
         q.task_done()
         if q.empty():
             #print("empty queue")
             pass
 
 
+def warning():
+    return "\033[1;31;40m [*] "
+
+def error():
+    return "\033[0m 0;37;40m [*] "
+
+def info():
+    return "\033[0;37;40m [*] "
+
+def success():
+    return"\033[1;32;40m [*] "
 
 def getStatus(domain):
-    #domain = word + "." + site
-    #print("Checking for domain " + domain)
     try:
         answers = dns.resolver.query(domain)
         #for rdata in answers: # for each response
             #print("Resolved " + domain + " : " +str(rdata)) # print the data
         appenddataset1(domain)
-        print(domain)
+        if args.verbose:  
+            print(success()+"Resolved domain %s" % domain)
+        else:
+            print(domain)
         file = open(output_file,"a")
         file.write(domain+"\n")
         file.close() 
     except dns.resolver.Timeout:
         if args.verbose:  
-            print("[*] Timeout for domain %s" % domain)        
+            print(warning()+"Timeout for domain %s" % domain)        
         addbacktoqueue(domain)
         pass
     except dns.resolver.NXDOMAIN:
         if args.verbose:
-            print("[*] No such domain %s" % domain)
-        pass
-    except dns.resolver.Timeout:
-        if args.verbose:
-            print("[*] Timed out while resolving %s" % domain)
+            print(info()+"No such domain %s" % domain)
         pass
     except dns.resolver.NoAnswer:
         if args.verbose:        
-            print("[*] Not resolved %s" % domain)
+            print(success()+"Not resolved %s" % domain)
         appenddataset1(domain)
     except dns.exception.DNSException:
         #print("Unhandled exception")
         pass
-    return "1"
+
 
 def appenddataset():
     try:
-        for words in open('wordlist.txt' ,'r'):
-            #print("Adding data to queue : " + words.strip() + "." + site)
+        for words in open(wordlist ,'r'):
             q.put(words.strip() + "." + site)
         q.join()    
-        #print("Data added to queue")
     except exception as e:
         print(e)
 
@@ -85,18 +124,14 @@ def appenddataset():
 
 def appenddataset1(domain):
     try:
-        for words in open('wordlist.txt' ,'r'):
-            #print("Adding data to queue : " + words.strip() + "." + domain)
+        for words in open(wordlist ,'r'):
             q.put(words.strip() + "." + domain)
-        #aq.join()
-        #print("Data added to queue")
     except exception as e:
         print(e)
+
 def addbacktoqueue(domain):
     q.put(domain)
 
-def doSomethingWithResult():
-    pass
 
 
 q = filequeue.FileQueue(maxsize=1000)
