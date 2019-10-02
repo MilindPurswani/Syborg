@@ -91,9 +91,9 @@ python3 syborg.py -h
 
 ## Special Thanks <3:
 
-1. (@nahamsec)[https://twitter.com/nahamsec] for his invaluable contribution towards the community by live streams. Check out his twitch channel https://twitch.tv/nahamsec
+1. [@nahamsec](https://twitter.com/nahamsec) for his invaluable contribution towards the community by live streams. Check out his twitch channel https://twitch.tv/nahamsec
 
-2. (@tomnomnom)[https://twitter.com/tomnomnom] for making such awesome tools and sharing with everyone. Be sure to check out his twitch  https://www.twitch.tv/tomnomnomuk
+2. [@tomnomnom](https://twitter.com/tomnomnom) for making such awesome tools and sharing with everyone. Be sure to check out his twitch  https://www.twitch.tv/tomnomnomuk
 
-3. (@GP89)[https://github.com/GP89] for the filequeue lib that resolved high memory consumption problem with syborg.
+3. [@GP89](https://github.com/GP89) for the filequeue lib that resolved high memory consumption problem with syborg.
 
