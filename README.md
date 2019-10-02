@@ -1,14 +1,14 @@
 # Syborg
 Syborg is a Recursive DNS Domain Enumerator which is neither active nor completely passive. This tool simply constructs a domain name and queries it with a specified DNS Server.
 
-![carbon.png](carbon.png)
-Image Credits: [Carbon](https://carbon.now.sh)
-
 Syborg has a Dead-end Avoidance system inspired from [@Tomnomnom](https://github.com/tomnomnom/hacks)'s [ettu](https://github.com/tomnomnom/hacks). 
 
 When you run subdomain enumeration with some of the tools, most of them passively query public records like `virustotal`, `crtsh` or `censys`. This enumeration technique is really fast and helps to find out a lot of domains in much less time.
 
-However, there are some domains that may not be mentioned in these public records. Inorder to find those domains, Syborg interacts with the nameservers and recursively brute-forces subdomain from the DNS until it's queue is empty. 
+However, there are some domains that may not be mentioned in these public records. In order to find those domains, Syborg interacts with the nameservers and recursively brute-forces subdomain from the DNS until it's queue is empty. 
+
+![carbon.png](carbon.png)
+Image Credits: [Carbon](https://carbon.now.sh)
 
 As mentioned by[@Tomnomnom](https://github.com/tomnomnom/hacks)'s [ettu](https://github.com/tomnomnom/hacks), I quote:
 
@@ -26,7 +26,7 @@ As mentioned by[@Tomnomnom](https://github.com/tomnomnom/hacks)'s [ettu](https:/
 > ▶ host one.two.three.tomnomnom.uk
 > one.two.three.tomnomnom.uk has address 46.101.59.42
 > ```
-> This difference in response can be used to help avoid dead-ends in recursive DNS brute-forcing by not recusing in the former situation:
+> This difference in response can be used to help avoid dead-ends in recursive DNS brute-forcing by not recursing in the former situation:
 > ```bash
 > ▶ echo -e "www\none\ntwo\nthree" | ettu tomnomnom.uk
 > one.two.three.tomnomnom.uk
@@ -60,16 +60,43 @@ pip3 install -r requirements.txt
 python3 syborg.py yahoo.com 
 ```
 
+## Recommended Smart Usage:
 
-## Using Smartly:
-
-1. By default this will use the built-in wordlist (Courtesy: [altdns](https://github.com/infosec-au/altdns)) which may or may not generate appropriate results. If you are looking for a good wordlist, I suggest you use [@tomnomnom](https://github.com/tomnomnom) `assetfinder` and `tok` tool to generate a domain specific word-list. 
+Although Syborg can discover many subdomains, it is still a brute-forcer after all (although not dumb). So, the more domain specific the wordlist, the less time to produce optimal results. In order to generate optimal list, it is recommended to generate a passive scan wordlist. One such way of doing that is as follows:
 
 ```bash
 assetfinder --subs-only media.yahoo.com | tok -delim-exceptions=- | sort -u | tee -a media.yahoo.com-wordlist.txt
 ```
 
-2. At times, it is possible that Syborg will hit High CPU Usage and that can cost you a lot if you are trying to use this tool on your VPS. Inorder to limit that use another utility called cpulimit
+*In order to execute this command, one should have installed `assetfinder` and `tok` by [@tomnomnom](https://github.com/tomnomnom/) installed and configured.*
+
+Then execute Syborg as follows:
+
+```bash
+python3 syborg.py media.yahoo.com -w media.yahoo.com-wordlist.txt -c 20 -o results.txt -v
+```
+
+Here is the list of arguments that can be used:
+
+````bash
+usage: syborg.py [-h] [-d DNS] [-w WORDLIST] [-o OUTPUT] [-c CONCURRENCY] [-v]
+                 domain
+
+positional arguments:
+  domain                domain name of the target
+
+optional arguments:
+  -h, --help                                 show this help message and exit
+  -d DNS, --dns DNS                          DNS Server to be used (default: 8.8.8.8)
+  -w WORDLIST, --wordlist WORDLIST           Specify a custom wordlist (default: wordlist.txt)
+  -o OUTPUT, --output OUTPUT                 Specify the output file (default: results-domain.txt)
+  -c CONCURRENCY, --concurrency CONCURRENCY  Specify the level of concurrency (default: 10)
+  -v, --verbose                              increase output verbosity
+````
+
+
+
+**At times, it is also possible that Syborg will hit High CPU Usage and that can cost you a lot if you are trying to use this tool on your VPS. Therefore to limit that use another utility called Cpulimit**
 
 ```bash
 cpulimit -l 50 -p $(pgrep python3)
@@ -81,12 +108,6 @@ This tool can be downloaded as follows:
 sudo apt install cpulimit
 ```
 
-For more help regarding usage, 
-
-```bash
-python3 syborg.py -h
-```
-
 
 
 ## Special Thanks <3:
@@ -95,5 +116,5 @@ python3 syborg.py -h
 
 2. [@tomnomnom](https://twitter.com/tomnomnom) for making such awesome tools and sharing with everyone. Be sure to check out his twitch  https://www.twitch.tv/tomnomnomuk
 
-3. [@GP89](https://github.com/GP89) for the filequeue lib that resolved high memory consumption problem with syborg.
+3. [@GP89](https://github.com/GP89) for the `FileQueue` lib that resolved high memory consumption problem with Syborg.
 
