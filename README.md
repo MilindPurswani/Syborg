@@ -10,7 +10,7 @@ However, there are some domains that may not be mentioned in these public record
 ![carbon.png](carbon.png)
 Image Credits: [Carbon](https://carbon.now.sh)
 
-As mentioned by[@Tomnomnom](https://github.com/tomnomnom/hacks)'s [ettu](https://github.com/tomnomnom/hacks), I quote:
+As mentioned on [ettu](https://github.com/tomnomnom/hacks)'s page, I quote:
 
 > Ordinarily if there are no records to return for a DNS name you might expect an `NXDOMAIN` error:
 > ```bash
@@ -68,13 +68,22 @@ Although Syborg can discover many subdomains, it is still a brute-forcer after a
 assetfinder --subs-only media.yahoo.com | tok -delim-exceptions=- | sort -u | tee -a media.yahoo.com-wordlist.txt
 ```
 
-*In order to execute this command, one should have installed `assetfinder` and `tok` by [@tomnomnom](https://github.com/tomnomnom/) installed and configured.*
+*In order to execute this command, one should have installed [`assetfinder`](https://github.com/tomnomnom/assetfinder) and [`tok`](https://github.com/tomnomnom/hacks)*
+
+Or, one can also you any other passive subdomain enumerator such as [`Sublist3r`](https://github.com/aboul3la/Sublist3r) by executing following command
+
+```bash
+python sublist3r.py -d media.yahoo.com -o domains.txt
+cat domains.txt | sed 's/[.]/\n/g' | sort -u | tee -a media.yahoo.com-wordlist.txt
+```
 
 Then execute Syborg as follows:
 
 ```bash
 python3 syborg.py media.yahoo.com -w media.yahoo.com-wordlist.txt -c 20 -o results.txt -v
 ```
+
+It doesn't depend on what passive enumeration tool is used, the whole point is to generate a domain specific wordlist for the current asset.
 
 Here is the list of arguments that can be used:
 
