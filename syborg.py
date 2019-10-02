@@ -1,6 +1,6 @@
 from threading import Thread
 import sys
-from queue import *
+from filequeue import *
 import sys
 import socket
 import dns.resolver
@@ -88,6 +88,8 @@ def appenddataset1(domain):
         for words in open('wordlist.txt' ,'r'):
             #print("Adding data to queue : " + words.strip() + "." + domain)
             q.put(words.strip() + "." + domain)
+        #aq.join()
+        #print("Data added to queue")
     except exception as e:
         print(e)
 def addbacktoqueue(domain):
@@ -97,7 +99,7 @@ def doSomethingWithResult():
     pass
 
 
-q = Queue(maxsize=0)
+q = filequeue.FileQueue(maxsize=1000)
 try:
     file = open(output_file,"w+")
 except exception as e:
