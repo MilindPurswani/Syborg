@@ -1,6 +1,9 @@
 # Syborg
 Syborg is a Recursive DNS Domain Enumerator which is neither active nor completely passive. This tool simply constructs a domain name and queries it with a specified DNS Server.
 
+
+Image Credits: [Carbon](https://carbon.now.sh)
+
 Syborg has a Dead-end Avoidance system inspired from [@Tomnomnom](https://github.com/tomnomnom/hacks)'s [ettu](https://github.com/tomnomnom/hacks). 
 
 When you run subdomain enumeration with some of the tools, most of them either passively query public records like `virustotal`, `crtsh` or `censys`. This enumeration technique is really fast and helps to find out a lot of domains in much less time.
@@ -83,4 +86,3 @@ For more help regarding usage,
 ```bash
 python3 syborg.py -h
 ```
-
