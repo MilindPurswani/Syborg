@@ -1,7 +1,7 @@
 # Syborg
 Syborg is a Recursive DNS Domain Enumerator which is neither active nor completely passive. This tool simply constructs a domain name and queries it with a specified DNS Server.
 
-
+![carbon.png](carbon.png)
 Image Credits: [Carbon](https://carbon.now.sh)
 
 Syborg has a Dead-end Avoidance system inspired from [@Tomnomnom](https://github.com/tomnomnom/hacks)'s [ettu](https://github.com/tomnomnom/hacks). 
