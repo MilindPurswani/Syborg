@@ -66,7 +66,7 @@ python3 syborg.py yahoo.com
 1. By default this will use the built-in wordlist (Courtesy: [altdns](https://github.com/infosec-au/altdns)) which may or may not generate appropriate results. If you are looking for a good wordlist, I suggest you use [@tomnomnom](https://github.com/tomnomnom) `assetfinder` and `tok` tool to generate a domain specific word-list. 
 
 ```bash
-assetfinder --subs-only media.yahoo.com | tok | sort -u -delim-exceptions=- | tee -a media.yahoo.com-wordlist.txt
+assetfinder --subs-only media.yahoo.com | tok -delim-exceptions=- | sort -u | tee -a media.yahoo.com-wordlist.txt
 ```
 
 2. At times, it is possible that Syborg will hit High CPU Usage and that can cost you a lot if you are trying to use this tool on your VPS. Inorder to limit that use another utility called cpulimit
