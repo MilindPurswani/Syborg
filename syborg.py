@@ -6,6 +6,129 @@ import socket
 import dns.resolver
 import argparse
 import time
+import random
+import string
+
+
+
+def randomString(stringLength=10):
+    """Generate a random string of fixed length """
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
+
+def getTime():
+    return time.strftime("%Y:%m:%d - %H:%M:%S")
+
+def printVerbose(message):
+    if args.verbose:
+        print(message)
+
+
+def doWork():
+    while True:
+        word = q.get()
+        getStatus(word)
+        q.task_done()
+        if q.empty():
+            #print("empty queue")
+            pass
+
+def checkwildcard(domain):
+    a = randomString()
+    temp_domain = a + '.'+ domain
+    result = checkrandom(domain)
+    if(result == "resolved" or result == "noanswer"):
+        return False
+
+def warning():
+    return "\033[1;31;40m[*]["+getTime()+"] "
+
+def error():
+    return "\033[0m 0;37;40m[*]["+getTime()+"] "
+
+def info():
+    return "\033[0;37;40m[*]["+getTime()+"] "
+
+def success():
+    return"\033[1;32;40m[*]["+getTime()+"] "
+
+
+def checkrandom(domain):
+    try:
+        answers = dns.resolver.query(domain)
+        return "resolved"
+    except dns.resolver.Timeout:
+        return "timeout"
+    except dns.resolver.NXDOMAIN:
+        return "nxdomain"
+    except dns.resolver.NoAnswer:
+        return "noanswer"
+    except dns.exception.DNSException:
+        return "unknown exception"
+
+def getStatus(domain):
+    try:
+        answers = dns.resolver.query(domain)
+        #for rdata in answers: # for each response
+            #print("Resolved " + domain + " : " +str(rdata)) # print the data
+        appenddataset1(domain) 
+        printVerbose(success()+"Resolved domain %s" % domain)
+        print(domain)
+        log("Resolved domain %s" % domain)
+        out_file.write(domain+"\n")
+    except dns.resolver.Timeout:
+        printVerbose(warning()+"Timeout for domain %s" % domain)        
+        addbacktoqueue(domain)
+        log("Timeout for domain %s" % domain)
+    except dns.resolver.NXDOMAIN:
+        printVerbose(info()+"No such domain %s" % domain)
+        log("No such domain %s" % domain)
+    except dns.resolver.NoAnswer:      
+        printVerbose(success()+"Not resolved %s" % domain)
+        appenddataset1(domain)
+        log("Not resolved %s" % domain)
+    except dns.exception.DNSException:
+        #print("Unhandled exception")
+        log("DNS Exception %s" % domain)
+        printVerbose("DNS Exception %s" % domain)
+
+
+def appenddataset():
+    try:
+        if not checkwildcard(site):
+            for words in open(wordlist ,'r'):
+                q.put(words.strip() + "." + site)
+            pass
+        q.join()    
+    except:
+        print("unexpected error")
+        log("unexpected error")
+
+
+def appenddataset1(domain):
+    try:
+        if not checkwildcard(domain):
+            for words in open(wordlist ,'r'):
+                q.put(words.strip() + "." + domain)
+    except exception as e:
+        print(e)
+        log(e)
+        
+failed_dict = {}
+
+def addbacktoqueue(domain):
+    if domain in failed_dict:
+        if failed_dict[domain] >= threshold:
+            if args.enablelogging:
+                log("Not putting %s into queue [Failed attempts exceeded]" % domain)
+            printVerbose("Not putting %s into queue [Failed attempts exceeded]" % domain)
+        else:
+            failed_dict[domain] += 1
+            q.put(domain)
+    else:
+        failed_dict[domain] = 1
+        q.put(domain)
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("domain",help="domain name of the target")
@@ -46,19 +169,16 @@ if args.concurrency:
 else:
     concurrent = 10
 
-    
-def getTime():
-    return time.strftime("%Y:%m:%d - %H:%M:%S")
 
 
-if args.verbose:
-    print("[*]["+getTime()+"] Starting Scan against %s " % site)
-    print("[*]["+getTime()+"] Verbose Mode On!")
-    print("[*]["+getTime()+"] DNS Server Set to %s" % dns_server)
-    print("[*]["+getTime()+"] Output to %s" % output_file)
-    print("[*]["+getTime()+"] BEWARE: This may overwrite the file if it's already existing.")
-    print("[*]["+getTime()+"] Using wordlist %s" % wordlist)
-    print("[*]["+getTime()+"] Concurrency set to %s" % concurrent)
+printVerbose("[*]["+getTime()+"] Starting Scan against %s " % site)
+printVerbose("[*]["+getTime()+"] Verbose Mode On!")
+printVerbose("[*]["+getTime()+"] DNS Server Set to %s" % dns_server)
+printVerbose("[*]["+getTime()+"] Output to %s" % output_file)
+printVerbose("[*]["+getTime()+"] BEWARE: This may overwrite the file if it's already existing.")
+printVerbose("[*]["+getTime()+"] Using wordlist %s" % wordlist)
+printVerbose("[*]["+getTime()+"] Concurrency set to %s" % concurrent)
+
 
 def log(data):
     if args.enablelogging:
@@ -68,122 +188,35 @@ if args.enablelogging:
     log_file = output_file+"-"+"log.log"
     logfile = open(log_file,"a+")
 
-    print("[*]["+getTime()+"] Logging to file %s" % log_file)
-    log("[*]["+getTime()+"] Starting Scan against %s " % site)
-    log("[*]["+getTime()+"] Verbose Mode On!")
-    log("[*]["+getTime()+"] DNS Server Set to %s" % dns_server)
-    log("[*]["+getTime()+"] Output to %s" % output_file)
-    log("[*]["+getTime()+"] BEWARE: This may overwrite the file if it's already existing.")
-    log("[*]["+getTime()+"] Using wordlist %s" % wordlist)
-    log("[*]["+getTime()+"] Concurrency set to %s" % concurrent)
-    log("[*]["+getTime()+"] Logging to file %s" % log_file)
+
+printVerbose("[*]["+getTime()+"] Logging to file %s" % log_file)
+log("[*]["+getTime()+"] Starting Scan against %s " % site)
+log("[*]["+getTime()+"] Verbose Mode On!")
+log("[*]["+getTime()+"] DNS Server Set to %s" % dns_server)
+log("[*]["+getTime()+"] Output to %s" % output_file)
+log("[*]["+getTime()+"] BEWARE: This may overwrite the file if it's already existing.")
+log("[*]["+getTime()+"] Using wordlist %s" % wordlist)
+log("[*]["+getTime()+"] Concurrency set to %s" % concurrent)
+log("[*]["+getTime()+"] Logging to file %s" % log_file)
+
+
+
+
+
+
+
 
 
 
 
 #Delay the script from running to allow users to read options
 if args.verbose:
-    time.sleep(5)
+    time.sleep(2)
 
 resolver = dns.resolver.Resolver()
 resolver.nameservers = [socket.gethostbyname(dns_server)]
 resolver.timeout = 1
 resolver.lifetime = 1
-
-
-def doWork():
-    while True:
-        word = q.get()
-        getStatus(word)
-        q.task_done()
-        if q.empty():
-            #print("empty queue")
-            pass
-
-
-def warning():
-    return "\033[1;31;40m[*]["+getTime()+"] "
-
-def error():
-    return "\033[0m 0;37;40m[*]["+getTime()+"] "
-
-def info():
-    return "\033[0;37;40m[*]["+getTime()+"] "
-
-def success():
-    return"\033[1;32;40m[*]["+getTime()+"] "
-
-
-
-def getStatus(domain):
-    try:
-        answers = dns.resolver.query(domain)
-        #for rdata in answers: # for each response
-            #print("Resolved " + domain + " : " +str(rdata)) # print the data
-        appenddataset1(domain)
-        if args.verbose:  
-            print(success()+"Resolved domain %s" % domain)
-        else:
-            print(domain)
-        log("Resolved domain %s" % domain)
-        out_file.write(domain+"\n")
-    except dns.resolver.Timeout:
-        if args.verbose:  
-            print(warning()+"Timeout for domain %s" % domain)        
-        addbacktoqueue(domain)
-        log("Timeout for domain %s" % domain)      
-        
-    except dns.resolver.NXDOMAIN:
-        if args.verbose:
-            print(info()+"No such domain %s" % domain)
-        log("No such domain %s" % domain)
-        pass
-    except dns.resolver.NoAnswer:
-        if args.verbose:        
-            print(success()+"Not resolved %s" % domain)
-        appenddataset1(domain)
-        log("Not resolved %s" % domain)
-    except dns.exception.DNSException:
-        #print("Unhandled exception")
-        log("Not resolved %s" % domain)
-        pass
-
-
-def appenddataset():
-    try:
-        for words in open(wordlist ,'r'):
-            q.put(words.strip() + "." + site)
-        q.join()    
-    except exception as e:
-        print(e)
-        log(e)
-
-
-
-def appenddataset1(domain):
-    try:
-        for words in open(wordlist ,'r'):
-            q.put(words.strip() + "." + domain)
-    except exception as e:
-        print(e)
-        log(e)
-        
-failed_dict = {}
-
-def addbacktoqueue(domain):
-    if domain in failed_dict:
-        if failed_dict[domain] >= threshold:
-            if args.enablelogging:
-                log("Not putting %s into queue[Failed attempts exceeded]" % domain)
-            print("Not putting %s into queue[Failed attempts exceeded]" % domain)
-        else:
-            failed_dict[domain] += 1
-            q.put(domain)
-    else:
-        failed_dict[domain] = 1
-        q.put(domain)
-
-
 
 q = filequeue.FileQueue(maxsize=1000)
 try:
@@ -193,13 +226,10 @@ except exception as e:
     log(e)    
     exit(1)
 
-
 for i in range(concurrent):
     t = Thread(target=doWork)
     t.daemon = True
     t.start()
-
-
 
 appenddataset()
 
