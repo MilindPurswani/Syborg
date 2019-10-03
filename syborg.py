@@ -38,15 +38,19 @@ if args.concurrency:
 else:
     concurrent = 10
 
+    
+def getTime():
+    return time.strftime("%Y:%m:%d - %H:%M:%S")
+
 
 if args.verbose:
-    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Starting Scan against %s " % site)
-    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Verbose Mode On!")
-    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] DNS Server Set to %s" % dns_server)
-    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Output to %s" % output_file)
-    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] BEWARE: This may overwrite the file if it's already existing.")
-    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Using wordlist %s" % wordlist)
-    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Concurrency set to %s" % concurrent)
+    print("[*]["+getTime()+"] Starting Scan against %s " % site)
+    print("[*]["+getTime()+"] Verbose Mode On!")
+    print("[*]["+getTime()+"] DNS Server Set to %s" % dns_server)
+    print("[*]["+getTime()+"] Output to %s" % output_file)
+    print("[*]["+getTime()+"] BEWARE: This may overwrite the file if it's already existing.")
+    print("[*]["+getTime()+"] Using wordlist %s" % wordlist)
+    print("[*]["+getTime()+"] Concurrency set to %s" % concurrent)
 
 def log(data):
     logfile = open(log_file,"a+")
@@ -56,15 +60,15 @@ def log(data):
 
 if args.enablelogging:
     log_file = output_file+"-"+"log.log"
-    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Logging to file %s" % log_file)
-    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Starting Scan against %s " % site)
-    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Verbose Mode On!")
-    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] DNS Server Set to %s" % dns_server)
-    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Output to %s" % output_file)
-    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] BEWARE: This may overwrite the file if it's already existing.")
-    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Using wordlist %s" % wordlist)
-    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Concurrency set to %s" % concurrent)
-    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Logging to file %s" % log_file)
+    print("[*]["+getTime()+"] Logging to file %s" % log_file)
+    log("[*]["+getTime()+"] Starting Scan against %s " % site)
+    log("[*]["+getTime()+"] Verbose Mode On!")
+    log("[*]["+getTime()+"] DNS Server Set to %s" % dns_server)
+    log("[*]["+getTime()+"] Output to %s" % output_file)
+    log("[*]["+getTime()+"] BEWARE: This may overwrite the file if it's already existing.")
+    log("[*]["+getTime()+"] Using wordlist %s" % wordlist)
+    log("[*]["+getTime()+"] Concurrency set to %s" % concurrent)
+    log("[*]["+getTime()+"] Logging to file %s" % log_file)
 
 
 
@@ -78,6 +82,7 @@ resolver.nameservers = [socket.gethostbyname(dns_server)]
 resolver.timeout = 1
 resolver.lifetime = 1
 
+
 def doWork():
     while True:
         word = q.get()
@@ -89,16 +94,16 @@ def doWork():
 
 
 def warning():
-    return "\033[1;31;40m[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] "
+    return "\033[1;31;40m[*]["+getTime()+"] "
 
 def error():
-    return "\033[0m 0;37;40m[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] "
+    return "\033[0m 0;37;40m[*]["+getTime()+"] "
 
 def info():
-    return "\033[0;37;40m[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] "
+    return "\033[0;37;40m[*]["+getTime()+"] "
 
 def success():
-    return"\033[1;32;40m[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] "
+    return"\033[1;32;40m[*]["+getTime()+"] "
 
 def getStatus(domain):
     try:
