@@ -119,32 +119,27 @@ def getStatus(domain):
             print(success()+"Resolved domain %s" % domain)
         else:
             print(domain)
-        if args.enablelogging:
-            log("Resolved domain %s" % domain)
+        log("Resolved domain %s" % domain)
         out_file.write(domain+"\n")
     except dns.resolver.Timeout:
         if args.verbose:  
             print(warning()+"Timeout for domain %s" % domain)        
         addbacktoqueue(domain)
-        if args.enablelogging:
-            log("Timeout for domain %s" % domain)      
-        pass
+        log("Timeout for domain %s" % domain)      
+        
     except dns.resolver.NXDOMAIN:
         if args.verbose:
             print(info()+"No such domain %s" % domain)
-        if args.enablelogging:
-            log("No such domain %s" % domain)
+        log("No such domain %s" % domain)
         pass
     except dns.resolver.NoAnswer:
         if args.verbose:        
             print(success()+"Not resolved %s" % domain)
         appenddataset1(domain)
-        if args.enablelogging:
-            log("Not resolved %s" % domain)
+        log("Not resolved %s" % domain)
     except dns.exception.DNSException:
         #print("Unhandled exception")
-        if args.enablelogging:
-            log("Not resolved %s" % domain)
+        log("Not resolved %s" % domain)
         pass
 
 
@@ -155,8 +150,7 @@ def appenddataset():
         q.join()    
     except exception as e:
         print(e)
-        if args.enablelogging:
-            log(e)
+        log(e)
 
 
 
@@ -166,8 +160,7 @@ def appenddataset1(domain):
             q.put(words.strip() + "." + domain)
     except exception as e:
         print(e)
-        if args.enablelogging:
-            log(e)
+        log(e)
         
 
 def addbacktoqueue(domain):
@@ -180,8 +173,7 @@ try:
     file = open(output_file,"w+")
 except exception as e:
     print(e)
-    if args.enablelogging:
-        log(e)    
+    log(e)    
     exit(1)
 
 
