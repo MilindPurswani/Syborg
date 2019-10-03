@@ -60,7 +60,7 @@ pip3 install -r requirements.txt
 python3 syborg.py yahoo.com 
 ```
 
-*More information regarding usage can be found in Syborg's [Creative Usage Guidelines](Syborg Creative Usage Guidelines.md). Do check it out!*
+*More information regarding usage can be found in Syborg's [Creative Usage Guidelines](https://github.com/MilindPurswani/Syborg/blob/master/Syborg%20Creative%20Usage%20Guidelines.md). Do check it out!*
 
 **At times, it is also possible that Syborg will hit High CPU Usage and that can cost you a lot if you are trying to use this tool on your VPS. Therefore to limit that use another utility called Cpulimit**
 
