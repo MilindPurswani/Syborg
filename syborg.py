@@ -15,6 +15,7 @@ parser.add_argument("-o","--output",help="Specify the output file (default: resu
 parser.add_argument("-c","--concurrency",help="Specify the level of concurrency (default: 10)")
 parser.add_argument("-l","--enablelogging",help="Enable logging to a file",action="store_true")
 parser.add_argument("-v", "--verbose", help="increase output verbosity",action="store_true")
+parser.add_argument("-t", "--threshold", help="Number of times to retry domain incase of timeout(default: 3)")
 args = parser.parse_args()
 site = args.domain
 
@@ -22,6 +23,11 @@ if args.dns:
     dns_server = args.dns
 else:
     dns_server = "8.8.8.8"
+
+if args.threshold:
+    threshold = int(args.threshold)
+else:
+    threshold = 3
 
 if args.output:
     output_file = args.output
@@ -162,9 +168,20 @@ def appenddataset1(domain):
         if args.enablelogging:
             log(e)
         
+failed_dict = {}
 
 def addbacktoqueue(domain):
-    q.put(domain)
+    if domain in failed_dict:
+        if failed_dict[domain] >= threshold:
+            if args.enablelogging:
+                log("Not putting %s into queue[Failed attempts exceeded]" % domain)
+            print("Not putting %s into queue[Failed attempts exceeded]" % domain)
+        else:
+            failed_dict[domain] += 1
+            q.put(domain)
+    else:
+        failed_dict[domain] = 1
+        q.put(domain)
 
 
 
@@ -182,5 +199,6 @@ for i in range(concurrent):
     t = Thread(target=doWork)
     t.daemon = True
     t.start()
+
 
 appenddataset()
