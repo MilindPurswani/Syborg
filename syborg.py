@@ -55,13 +55,13 @@ if args.verbose:
     print("[*]["+getTime()+"] Concurrency set to %s" % concurrent)
 
 def log(data):
-    logfile = open(log_file,"a+")
-    logfile.write(data+"\n")
-
-    logfile.close()
+    if args.enablelogging:
+        logfile.write(data+"\n")
 
 if args.enablelogging:
     log_file = output_file+"-"+"log.log"
+    logfile = open(log_file,"a+")
+
     print("[*]["+getTime()+"] Logging to file %s" % log_file)
     log("[*]["+getTime()+"] Starting Scan against %s " % site)
     log("[*]["+getTime()+"] Verbose Mode On!")
@@ -194,3 +194,4 @@ for i in range(concurrent):
 appenddataset()
 
 out_file.close()
+logfile.close()
