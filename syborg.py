@@ -28,6 +28,8 @@ if args.output:
 else:
     output_file = "results-"+site+".txt"
 
+out_file = open(output_file,"a")
+
 if args.wordlist:
     wordlist = args.wordlist
 else:
@@ -105,6 +107,8 @@ def info():
 def success():
     return"\033[1;32;40m[*]["+getTime()+"] "
 
+
+
 def getStatus(domain):
     try:
         answers = dns.resolver.query(domain)
@@ -117,9 +121,7 @@ def getStatus(domain):
             print(domain)
         if args.enablelogging:
             log("Resolved domain %s" % domain)
-        file = open(output_file,"a")
-        file.write(domain+"\n")
-        file.close() 
+        out_file.write(domain+"\n")
     except dns.resolver.Timeout:
         if args.verbose:  
             print(warning()+"Timeout for domain %s" % domain)        
@@ -188,4 +190,7 @@ for i in range(concurrent):
     t.daemon = True
     t.start()
 
+
 appenddataset()
+
+out_file.close()
