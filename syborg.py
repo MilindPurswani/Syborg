@@ -36,7 +36,7 @@ else:
     wordlist = "wordlist.txt"
 
 if args.concurrency:
-    concurrent = args.concurrency
+    concurrent = int(args.concurrency,10)
 else:
     concurrent = 10
 
