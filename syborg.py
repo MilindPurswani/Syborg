@@ -13,10 +13,9 @@ parser.add_argument("-d","--dns",help="DNS Server to be used (default: 8.8.8.8)"
 parser.add_argument("-w","--wordlist",help="Specify a custom wordlist (default: wordlist.txt)")
 parser.add_argument("-o","--output",help="Specify the output file (default: results-domain.txt)")
 parser.add_argument("-c","--concurrency",help="Specify the level of concurrency (default: 10)")
+parser.add_argument("-l","--enablelogging",help="Enable logging to a file",action="store_true")
 parser.add_argument("-v", "--verbose", help="increase output verbosity",action="store_true")
 args = parser.parse_args()
-if args.verbose:
-    print("[*] Verbose Mode On!")
 site = args.domain
 
 if args.dns:
@@ -24,31 +23,51 @@ if args.dns:
 else:
     dns_server = "8.8.8.8"
 
-if args.verbose:
-    print("[*] DNS Server Set to %s" % dns_server)
-
 if args.output:
     output_file = args.output
 else:
     output_file = "results-"+site+".txt"
-
-if args.verbose:
-    print("[*] Output to %s" % output_file)
-    print("[*] BEWARE: This may overwrite the file if it's already existing.")
-
 
 if args.wordlist:
     wordlist = args.wordlist
 else:
     wordlist = "wordlist.txt"
 
-if args.verbose:
-    print("[*] Using wordlist %s" % wordlist)
-
 if args.concurrency:
     concurrent = args.concurrency
 else:
     concurrent = 10
+
+
+if args.verbose:
+    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Starting Scan against %s " % site)
+    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Verbose Mode On!")
+    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] DNS Server Set to %s" % dns_server)
+    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Output to %s" % output_file)
+    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] BEWARE: This may overwrite the file if it's already existing.")
+    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Using wordlist %s" % wordlist)
+    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Concurrency set to %s" % concurrent)
+
+def log(data):
+    logfile = open(log_file,"a+")
+    logfile.write(data+"\n")
+
+    logfile.close()
+
+if args.enablelogging:
+    log_file = output_file+"-"+"log.log"
+    print("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Logging to file %s" % log_file)
+    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Starting Scan against %s " % site)
+    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Verbose Mode On!")
+    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] DNS Server Set to %s" % dns_server)
+    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Output to %s" % output_file)
+    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] BEWARE: This may overwrite the file if it's already existing.")
+    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Using wordlist %s" % wordlist)
+    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Concurrency set to %s" % concurrent)
+    log("[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] Logging to file %s" % log_file)
+
+
+
 
 #Delay the script from running to allow users to read options
 if args.verbose:
@@ -70,16 +89,16 @@ def doWork():
 
 
 def warning():
-    return "\033[1;31;40m [*] "
+    return "\033[1;31;40m[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] "
 
 def error():
-    return "\033[0m 0;37;40m [*] "
+    return "\033[0m 0;37;40m[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] "
 
 def info():
-    return "\033[0;37;40m [*] "
+    return "\033[0;37;40m[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] "
 
 def success():
-    return"\033[1;32;40m [*] "
+    return"\033[1;32;40m[*]["+time.strftime("%Y:%m:%d - %H:%M:%S")+"] "
 
 def getStatus(domain):
     try:
@@ -91,6 +110,8 @@ def getStatus(domain):
             print(success()+"Resolved domain %s" % domain)
         else:
             print(domain)
+        if args.enablelogging:
+            log("Resolved domain %s" % domain)
         file = open(output_file,"a")
         file.write(domain+"\n")
         file.close() 
@@ -98,17 +119,25 @@ def getStatus(domain):
         if args.verbose:  
             print(warning()+"Timeout for domain %s" % domain)        
         addbacktoqueue(domain)
+        if args.enablelogging:
+            log("Timeout for domain %s" % domain)      
         pass
     except dns.resolver.NXDOMAIN:
         if args.verbose:
             print(info()+"No such domain %s" % domain)
+        if args.enablelogging:
+            log("No such domain %s" % domain)
         pass
     except dns.resolver.NoAnswer:
         if args.verbose:        
             print(success()+"Not resolved %s" % domain)
         appenddataset1(domain)
+        if args.enablelogging:
+            log("Not resolved %s" % domain)
     except dns.exception.DNSException:
         #print("Unhandled exception")
+        if args.enablelogging:
+            log("Not resolved %s" % domain)
         pass
 
 
@@ -119,6 +148,8 @@ def appenddataset():
         q.join()    
     except exception as e:
         print(e)
+        if args.enablelogging:
+            log(e)
 
 
 
@@ -128,6 +159,9 @@ def appenddataset1(domain):
             q.put(words.strip() + "." + domain)
     except exception as e:
         print(e)
+        if args.enablelogging:
+            log(e)
+        
 
 def addbacktoqueue(domain):
     q.put(domain)
@@ -139,6 +173,8 @@ try:
     file = open(output_file,"w+")
 except exception as e:
     print(e)
+    if args.enablelogging:
+        log(e)    
     exit(1)
 
 
