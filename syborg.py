@@ -187,9 +187,11 @@ def log(data):
 if args.enablelogging:
     log_file = output_file+"-"+"log.log"
     logfile = open(log_file,"a+")
+    printVerbose("[*]["+getTime()+"] Logging to file %s" % log_file)
+    log("[*]["+getTime()+"] Logging to file %s" % log_file)
 
 
-printVerbose("[*]["+getTime()+"] Logging to file %s" % log_file)
+
 log("[*]["+getTime()+"] Starting Scan against %s " % site)
 log("[*]["+getTime()+"] Verbose Mode On!")
 log("[*]["+getTime()+"] DNS Server Set to %s" % dns_server)
@@ -197,17 +199,6 @@ log("[*]["+getTime()+"] Output to %s" % output_file)
 log("[*]["+getTime()+"] BEWARE: This may overwrite the file if it's already existing.")
 log("[*]["+getTime()+"] Using wordlist %s" % wordlist)
 log("[*]["+getTime()+"] Concurrency set to %s" % concurrent)
-log("[*]["+getTime()+"] Logging to file %s" % log_file)
-
-
-
-
-
-
-
-
-
-
 
 #Delay the script from running to allow users to read options
 if args.verbose:
