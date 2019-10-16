@@ -36,9 +36,11 @@ def doWork():
 def checkwildcard(domain):
     a = randomString()
     temp_domain = a + '.'+ domain
-    result = checkrandom(domain)
+    result = checkrandom(temp_domain)
     if(result == "resolved" or result == "noanswer"):
         return False
+    else:
+        return True
 
 def warning():
     return "\033[1;31;40m[*]["+getTime()+"] "
@@ -92,12 +94,22 @@ def getStatus(domain):
         log("DNS Exception %s" % domain)
         printVerbose("DNS Exception %s" % domain)
 
+def checkdomain():
+    result = checkrandom(site)
+    printVerbose("Checkrandom returned: "+result)
+    if(result == "resolved" or result == "noanswer"):
+        print("calling appenddataset1")
+        appenddataset(site)
+    elif(result == "timeout"):
+        print("Internet Connection issues")
+    else:
+        pass
 
-def appenddataset():
+def appenddataset(domain):
     try:
-        if not checkwildcard(site):
+        if checkwildcard(domain):
             for words in open(wordlist ,'r'):
-                q.put(words.strip() + "." + site)
+                q.put(words.strip() + "." + domain)
             pass
         q.join()    
     except:
@@ -107,7 +119,8 @@ def appenddataset():
 
 def appenddataset1(domain):
     try:
-        if not checkwildcard(domain):
+        if checkwildcard(domain):
+            print("addding to queue")
             for words in open(wordlist ,'r'):
                 q.put(words.strip() + "." + domain)
     except exception as e:
@@ -222,7 +235,8 @@ for i in range(concurrent):
     t.daemon = True
     t.start()
 
-appenddataset()
+checkdomain()
 
 out_file.close()
-logfile.close()
+if args.enablelogging:
+    logfile.close()
